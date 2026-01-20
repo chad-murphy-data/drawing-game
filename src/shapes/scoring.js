@@ -156,33 +156,21 @@ export function calculateScore(drawnPoints, idealPath, options = {}) {
   }
 
   // Base accuracy: green = 100%, yellow = 25%, red = 0%
+  // This is the PRIMARY scoring factor
   const accuracyPoints = greenCount * 1 + yellowCount * 0.25;
   const accuracy = (accuracyPoints / drawnPoints.length) * 100;
 
-  // Calculate coverage
+  // Calculate coverage (for display only, minimal impact on score)
   const coverage = calculatePathCoverage(drawnPoints, idealPath);
 
-  // Completion bonus (+3% if >95% coverage)
-  const completionBonus = coverage > 0.95 ? 3 : 0;
-
-  // Smoothness bonus (0-2%)
-  const smoothnessBonus = Math.min(2, Math.floor(calculateSmoothnessBonus(drawnPoints) * 0.4));
+  // Small completion bonus (+2% if >90% coverage)
+  const completionBonus = coverage > 0.9 ? 2 : 0;
 
   // Speed bonus (Speed Mode only, 0-5%)
   const speedBonus = mode === 'speed' ? Math.floor(calculateSpeedBonus(timeSeconds) * 0.5) : 0;
 
-  // Calculate final score
-  let score = accuracy + completionBonus + smoothnessBonus + speedBonus;
-
-  // Coverage penalty - must trace most of the shape
-  if (coverage < 0.7) {
-    score *= coverage / 0.7; // Penalize incomplete traces
-  }
-
-  // Memory mode additional penalty for incomplete shapes
-  if (mode === 'memory' && coverage < 0.5) {
-    score *= coverage * 2;
-  }
+  // Final score is primarily accuracy-based
+  let score = accuracy + completionBonus + speedBonus;
 
   // Cap at 100
   score = Math.min(100, Math.round(score));
