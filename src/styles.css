@@ -475,14 +475,14 @@ body {
 
 /* Cocktail mode sway animation - slow and woozy */
 .canvas-container.swaying {
-  animation: cocktailSway 3s ease-in-out infinite;
+  animation: cocktailSway 2.5s ease-in-out infinite;
 }
 
 @keyframes cocktailSway {
   0% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(12px, 5px) rotate(2deg); }
-  50% { transform: translate(-8px, -3px) rotate(-1.5deg); }
-  75% { transform: translate(-15px, 8px) rotate(-2.5deg); }
+  25% { transform: translate(20px, 10px) rotate(3.5deg); }
+  50% { transform: translate(-15px, -8px) rotate(-2.5deg); }
+  75% { transform: translate(-25px, 12px) rotate(-4deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
