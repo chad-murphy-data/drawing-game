@@ -190,6 +190,21 @@ function stopShaking() {
   }
 }
 
+// Cocktail mode swaying
+function startSwaying() {
+  const container = document.querySelector('.canvas-container');
+  if (container) {
+    container.classList.add('swaying');
+  }
+}
+
+function stopSwaying() {
+  const container = document.querySelector('.canvas-container');
+  if (container) {
+    container.classList.remove('swaying');
+  }
+}
+
 // Game State
 const state = {
   currentScreen: 'home-screen',
@@ -613,6 +628,10 @@ function startCountdown() {
       if (state.selectedMode === 'earthquake') {
         startShaking();
       }
+      // Start cocktail swaying if in cocktail mode
+      if (state.selectedMode === 'cocktail') {
+        startSwaying();
+      }
     }
   }, 800);
 }
@@ -692,6 +711,7 @@ function resetGame() {
   state.gameStarted = false;
   state.memoryPhase = false;
   stopShaking(); // Stop earthquake shaking if active
+  stopSwaying(); // Stop cocktail swaying if active
 
   if (state.timerInterval) {
     clearInterval(state.timerInterval);
@@ -801,6 +821,7 @@ function startTimer() {
 function endGame() {
   state.gameStarted = false;
   stopShaking(); // Stop earthquake shaking if active
+  stopSwaying(); // Stop cocktail swaying if active
 
   if (state.timerInterval) {
     clearInterval(state.timerInterval);

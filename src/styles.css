@@ -161,13 +161,13 @@ body {
 
 .mode-buttons {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
-@media (min-width: 400px) {
+@media (min-width: 500px) {
   .mode-buttons {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
@@ -471,6 +471,19 @@ body {
   50% { transform: translate(-2px, 3px) rotate(-0.5deg); }
   75% { transform: translate(-3px, -1px) rotate(0.3deg); }
   100% { transform: translate(2px, 2px) rotate(-0.3deg); }
+}
+
+/* Cocktail mode sway animation - slow and woozy */
+.canvas-container.swaying {
+  animation: cocktailSway 3s ease-in-out infinite;
+}
+
+@keyframes cocktailSway {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(12px, 5px) rotate(2deg); }
+  50% { transform: translate(-8px, -3px) rotate(-1.5deg); }
+  75% { transform: translate(-15px, 8px) rotate(-2.5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 #game-canvas {
@@ -810,27 +823,23 @@ body {
   }
 
   .mode-buttons {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .mode-btn {
-    padding: 10px 6px;
+    padding: 8px 4px;
   }
 
   .mode-icon {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 
   .mode-name {
-    font-size: 0.75rem;
-  }
-
-  .mode-name {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 
   .mode-desc {
-    font-size: 0.65rem;
+    font-size: 0.55rem;
   }
 
   .shape-grid {
