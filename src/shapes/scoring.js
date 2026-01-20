@@ -1,10 +1,10 @@
 // Scoring Algorithm for Shape Tracer
 
-// Tolerance zones in pixels
+// Tolerance zones in pixels (tighter = harder)
 export const TOLERANCE = {
-  GREEN: 15,   // Perfect - full points
-  YELLOW: 30,  // Acceptable - partial points
-  RED: 45      // Miss - no points but tracked
+  GREEN: 10,   // Perfect - full points
+  YELLOW: 20,  // Acceptable - partial points
+  RED: 35      // Miss - no points but tracked
 };
 
 /**
@@ -155,28 +155,33 @@ export function calculateScore(drawnPoints, idealPath, options = {}) {
     }
   }
 
-  // Base accuracy: green = 100%, yellow = 50%, red = 0%
-  const accuracyPoints = greenCount * 1 + yellowCount * 0.5;
+  // Base accuracy: green = 100%, yellow = 25%, red = 0%
+  const accuracyPoints = greenCount * 1 + yellowCount * 0.25;
   const accuracy = (accuracyPoints / drawnPoints.length) * 100;
 
   // Calculate coverage
   const coverage = calculatePathCoverage(drawnPoints, idealPath);
 
-  // Completion bonus (+5% if >90% coverage)
-  const completionBonus = coverage > 0.9 ? 5 : 0;
+  // Completion bonus (+3% if >95% coverage)
+  const completionBonus = coverage > 0.95 ? 3 : 0;
 
-  // Smoothness bonus (0-5%)
-  const smoothnessBonus = calculateSmoothnessBonus(drawnPoints);
+  // Smoothness bonus (0-2%)
+  const smoothnessBonus = Math.min(2, Math.floor(calculateSmoothnessBonus(drawnPoints) * 0.4));
 
-  // Speed bonus (Speed Mode only, 0-10%)
-  const speedBonus = mode === 'speed' ? calculateSpeedBonus(timeSeconds) : 0;
+  // Speed bonus (Speed Mode only, 0-5%)
+  const speedBonus = mode === 'speed' ? Math.floor(calculateSpeedBonus(timeSeconds) * 0.5) : 0;
 
   // Calculate final score
   let score = accuracy + completionBonus + smoothnessBonus + speedBonus;
 
-  // Memory mode penalty for incomplete shapes
+  // Coverage penalty - must trace most of the shape
+  if (coverage < 0.7) {
+    score *= coverage / 0.7; // Penalize incomplete traces
+  }
+
+  // Memory mode additional penalty for incomplete shapes
   if (mode === 'memory' && coverage < 0.5) {
-    score *= coverage * 2; // Scale down score if less than half completed
+    score *= coverage * 2;
   }
 
   // Cap at 100

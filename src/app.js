@@ -122,7 +122,7 @@ function setupEventListeners() {
   // Results buttons
   document.getElementById('try-again-btn').addEventListener('click', () => {
     navigateTo('game-screen');
-    startGame();
+    setTimeout(() => startGame(), 50);
   });
   document.getElementById('new-shape-btn').addEventListener('click', () => {
     navigateTo('shape-screen');
@@ -323,7 +323,8 @@ function populateShapeGrid() {
     card.addEventListener('click', () => {
       state.selectedShape = card.dataset.shape;
       navigateTo('game-screen');
-      startGame();
+      // Delay startGame to ensure canvas is rendered and sized
+      setTimeout(() => startGame(), 50);
     });
   });
 }
