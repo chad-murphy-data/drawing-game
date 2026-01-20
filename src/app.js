@@ -427,13 +427,13 @@ function startMemoryMode() {
 
   state.memoryPhase = true;
 
-  // Draw the shape
-  drawGhostShape();
+  // Draw bright version of the shape (solid, full opacity)
+  drawBrightShape();
 
-  // Show memory overlay
+  // Show memory overlay with countdown
   memoryOverlay.classList.remove('hidden');
 
-  let count = 3;
+  let count = 2;
   timerEl.textContent = count;
 
   const interval = setInterval(() => {
@@ -450,6 +450,40 @@ function startMemoryMode() {
       state.gameStarted = true;
     }
   }, 1000);
+}
+
+// Draw a bright, solid shape for memory mode
+function drawBrightShape() {
+  const ctx = elements.ctx;
+  const path = state.idealPath;
+
+  if (path.length < 2) return;
+
+  ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
+
+  // Draw solid bright shape (no dots, full opacity)
+  ctx.beginPath();
+  ctx.moveTo(path[0].x, path[0].y);
+  for (let i = 1; i < path.length; i++) {
+    ctx.lineTo(path[i].x, path[i].y);
+  }
+  ctx.strokeStyle = '#08d9d6'; // Bright cyan
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.shadowColor = '#08d9d6';
+  ctx.shadowBlur = 15;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Draw start indicator
+  ctx.beginPath();
+  ctx.arc(path[0].x, path[0].y, 10, 0, Math.PI * 2);
+  ctx.fillStyle = '#6ef970';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
 }
 
 // Reset game state

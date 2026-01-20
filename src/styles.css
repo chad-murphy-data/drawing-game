@@ -439,8 +439,7 @@ body {
 }
 
 /* Countdown Overlay */
-.countdown-overlay,
-.memory-overlay {
+.countdown-overlay {
   position: absolute;
   inset: 0;
   display: flex;
@@ -450,6 +449,21 @@ body {
   background: rgba(26, 26, 46, 0.9);
   border-radius: 20px;
   z-index: 10;
+}
+
+/* Memory Overlay - transparent so shape shows through */
+.memory-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 20px;
+  background: transparent;
+  border-radius: 20px;
+  z-index: 10;
+  pointer-events: none;
 }
 
 .countdown-overlay.hidden,
@@ -471,15 +485,23 @@ body {
   100% { transform: scale(1); opacity: 0.8; }
 }
 
-.memory-overlay {
-  font-size: 1.5rem;
+.memory-overlay span,
+.memory-overlay .memory-timer {
+  background: rgba(26, 26, 46, 0.8);
+  padding: 8px 16px;
+  border-radius: 10px;
   color: var(--accent-yellow);
-  gap: 20px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.memory-overlay > span:first-child {
+  font-size: 1.2rem;
 }
 
 .memory-timer {
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: 700;
+  margin-top: 10px;
 }
 
 /* Game Controls */
