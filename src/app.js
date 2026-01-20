@@ -3,6 +3,178 @@ import { shapes, getAllShapes, getShapeById, pointsToSvgPath } from './shapes/de
 import { calculateScore, TOLERANCE } from './shapes/scoring.js';
 import { getPlayer, updatePlayerName, saveScore, getLeaderboard, getScoreRank } from './utils/storage.js';
 
+// Audio context for sound effects
+let audioCtx = null;
+let soundEnabled = false; // Muted by default for work settings
+
+// Initialize audio context (must be triggered by user interaction)
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return audioCtx;
+}
+
+// Sound effect generators
+function playSound(type) {
+  if (!soundEnabled) return;
+
+  const ctx = initAudio();
+  if (ctx.state === 'suspended') ctx.resume();
+
+  switch(type) {
+    case 'perfect':
+      playFanfare(ctx);
+      break;
+    case 'great':
+      playChime(ctx);
+      break;
+    case 'good':
+      playDing(ctx);
+      break;
+    case 'practice':
+      playNeutral(ctx);
+      break;
+    case 'oof':
+      playSadTrombone(ctx);
+      break;
+    case 'countdown':
+      playBeep(ctx);
+      break;
+    case 'go':
+      playGo(ctx);
+      break;
+  }
+}
+
+// Triumphant fanfare for perfect scores
+function playFanfare(ctx) {
+  const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+  notes.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'triangle';
+    gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.15);
+    gain.gain.exponentialDecayTo = 0.01;
+    gain.gain.setTargetAtTime(0.01, ctx.currentTime + i * 0.15 + 0.2, 0.1);
+    osc.start(ctx.currentTime + i * 0.15);
+    osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+  });
+}
+
+// Happy chime for great scores
+function playChime(ctx) {
+  const notes = [659.25, 783.99, 987.77]; // E5, G5, B5
+  notes.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.1);
+    gain.gain.setTargetAtTime(0.01, ctx.currentTime + i * 0.1 + 0.15, 0.1);
+    osc.start(ctx.currentTime + i * 0.1);
+    osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+  });
+}
+
+// Simple ding for good scores
+function playDing(ctx) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = 880;
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(0.3, ctx.currentTime);
+  gain.gain.setTargetAtTime(0.01, ctx.currentTime + 0.1, 0.1);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.3);
+}
+
+// Neutral blip for practice scores
+function playNeutral(ctx) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = 440;
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(0.2, ctx.currentTime);
+  gain.gain.setTargetAtTime(0.01, ctx.currentTime + 0.1, 0.05);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.2);
+}
+
+// Sad trombone for oof scores
+function playSadTrombone(ctx) {
+  const notes = [311.13, 293.66, 277.18, 261.63]; // Eb4, D4, Db4, C4 - descending
+  notes.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sawtooth';
+    gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.25);
+    gain.gain.setTargetAtTime(0.01, ctx.currentTime + i * 0.25 + 0.2, 0.05);
+    osc.start(ctx.currentTime + i * 0.25);
+    osc.stop(ctx.currentTime + i * 0.25 + 0.3);
+  });
+}
+
+// Countdown beep
+function playBeep(ctx) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = 600;
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(0.2, ctx.currentTime);
+  gain.gain.setTargetAtTime(0.01, ctx.currentTime + 0.08, 0.02);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.15);
+}
+
+// Go sound (higher pitch)
+function playGo(ctx) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = 880;
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(0.3, ctx.currentTime);
+  gain.gain.setTargetAtTime(0.01, ctx.currentTime + 0.15, 0.05);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.25);
+}
+
+// Toggle sound
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  initAudio(); // Initialize on first enable
+  updateSoundButton();
+
+  // Play a test sound when enabling
+  if (soundEnabled) {
+    playDing(audioCtx);
+  }
+}
+
+function updateSoundButton() {
+  const btn = document.getElementById('sound-toggle');
+  if (btn) {
+    btn.textContent = soundEnabled ? '🔊' : '🔇';
+    btn.title = soundEnabled ? 'Mute sounds' : 'Unmute sounds';
+  }
+}
+
 // Game State
 const state = {
   currentScreen: 'home-screen',
@@ -66,6 +238,9 @@ function setupEventListeners() {
   document.getElementById('player-name').addEventListener('change', (e) => {
     updatePlayerName(e.target.value);
   });
+
+  // Sound toggle
+  document.getElementById('sound-toggle').addEventListener('click', toggleSound);
 
   // Mode buttons
   document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -400,6 +575,7 @@ function startCountdown() {
 
   let count = 3;
   numberEl.textContent = count;
+  playSound('countdown'); // Play first beep
 
   // Draw ghost shape behind countdown
   drawGhostShape();
@@ -408,9 +584,11 @@ function startCountdown() {
     count--;
     if (count > 0) {
       numberEl.textContent = count;
+      playSound('countdown');
     } else if (count === 0) {
       numberEl.textContent = 'GO!';
       numberEl.style.color = '#6ef970';
+      playSound('go');
     } else {
       clearInterval(interval);
       overlay.classList.add('hidden');
@@ -646,6 +824,9 @@ function showResults(scoreResult, rank) {
   const tierEl = document.getElementById('score-tier');
   tierEl.textContent = scoreResult.message;
   tierEl.className = 'score-tier ' + scoreResult.tier;
+
+  // Play sound effect based on tier
+  playSound(scoreResult.tier);
 
   // Animate score
   animateScore(scoreResult.score);
