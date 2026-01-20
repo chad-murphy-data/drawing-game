@@ -175,6 +175,21 @@ function updateSoundButton() {
   }
 }
 
+// Earthquake mode shaking
+function startShaking() {
+  const container = document.querySelector('.canvas-container');
+  if (container) {
+    container.classList.add('shaking');
+  }
+}
+
+function stopShaking() {
+  const container = document.querySelector('.canvas-container');
+  if (container) {
+    container.classList.remove('shaking');
+  }
+}
+
 // Game State
 const state = {
   currentScreen: 'home-screen',
@@ -594,6 +609,10 @@ function startCountdown() {
       overlay.classList.add('hidden');
       numberEl.style.color = '';
       state.gameStarted = true;
+      // Start earthquake shaking if in earthquake mode
+      if (state.selectedMode === 'earthquake') {
+        startShaking();
+      }
     }
   }, 800);
 }
@@ -672,6 +691,7 @@ function resetGame() {
   state.elapsedTime = 0;
   state.gameStarted = false;
   state.memoryPhase = false;
+  stopShaking(); // Stop earthquake shaking if active
 
   if (state.timerInterval) {
     clearInterval(state.timerInterval);
@@ -780,6 +800,7 @@ function startTimer() {
 // End the game and show results
 function endGame() {
   state.gameStarted = false;
+  stopShaking(); // Stop earthquake shaking if active
 
   if (state.timerInterval) {
     clearInterval(state.timerInterval);
