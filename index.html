@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Shape Tracer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Home Screen -->
+    <div id="home-screen" class="screen active">
+      <div class="home-content">
+        <h1 class="game-title">
+          <span class="title-shape">Shape</span>
+          <span class="title-tracer">Tracer</span>
+        </h1>
+        <p class="tagline">Trace. Score. Compete.</p>
+
+        <div class="name-input-container">
+          <input type="text" id="player-name" placeholder="Enter your name" maxlength="20">
+        </div>
+
+        <div class="mode-selector">
+          <h3>Select Mode</h3>
+          <div class="mode-buttons">
+            <button class="mode-btn active" data-mode="standard">
+              <span class="mode-icon">🎯</span>
+              <span class="mode-name">Standard</span>
+              <span class="mode-desc">Pure accuracy</span>
+            </button>
+            <button class="mode-btn" data-mode="speed">
+              <span class="mode-icon">⚡</span>
+              <span class="mode-name">Speed</span>
+              <span class="mode-desc">Race the clock</span>
+            </button>
+            <button class="mode-btn" data-mode="memory">
+              <span class="mode-icon">🧠</span>
+              <span class="mode-name">Memory</span>
+              <span class="mode-desc">Remember & trace</span>
+            </button>
+          </div>
+        </div>
+
+        <button id="play-btn" class="primary-btn">Play</button>
+        <button id="leaderboard-btn" class="secondary-btn">Leaderboard</button>
+      </div>
+    </div>
+
+    <!-- Shape Selection Screen -->
+    <div id="shape-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" data-target="home-screen">← Back</button>
+        <h2>Choose a Shape</h2>
+      </div>
+      <div class="difficulty-tabs">
+        <button class="tab-btn active" data-difficulty="all">All</button>
+        <button class="tab-btn" data-difficulty="easy">Easy</button>
+        <button class="tab-btn" data-difficulty="medium">Medium</button>
+        <button class="tab-btn" data-difficulty="hard">Hard</button>
+      </div>
+      <div id="shape-grid" class="shape-grid">
+        <!-- Shapes populated by JS -->
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+      <div class="game-header">
+        <button class="back-btn" data-target="shape-screen">← Back</button>
+        <div class="game-info">
+          <span id="current-shape-name">Circle</span>
+          <span id="current-mode-badge" class="mode-badge">Standard</span>
+        </div>
+        <div id="game-timer" class="timer hidden">0.0s</div>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="countdown-overlay" class="countdown-overlay hidden">
+          <span class="countdown-number">3</span>
+        </div>
+        <div id="memory-overlay" class="memory-overlay hidden">
+          <span>Memorize the shape!</span>
+          <div class="memory-timer">3</div>
+        </div>
+      </div>
+
+      <div class="game-controls">
+        <button id="restart-btn" class="control-btn">↺ Restart</button>
+        <button id="give-up-btn" class="control-btn">Give Up</button>
+      </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+      <div class="results-content">
+        <div id="score-tier" class="score-tier">PERFECT!</div>
+        <div class="score-display">
+          <span id="score-value" class="score-value">0</span>
+          <span class="score-percent">%</span>
+        </div>
+        <div id="score-details" class="score-details">
+          <!-- Filled by JS -->
+        </div>
+
+        <div class="results-canvas-container">
+          <canvas id="results-canvas"></canvas>
+        </div>
+
+        <div id="rank-display" class="rank-display hidden">
+          Your rank: <span id="rank-value">#1</span>
+        </div>
+
+        <div class="results-buttons">
+          <button id="try-again-btn" class="primary-btn">Try Again</button>
+          <button id="new-shape-btn" class="secondary-btn">New Shape</button>
+          <button id="results-leaderboard-btn" class="secondary-btn">Leaderboard</button>
+        </div>
+      </div>
+      <div id="confetti-container" class="confetti-container"></div>
+    </div>
+
+    <!-- Leaderboard Screen -->
+    <div id="leaderboard-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" data-target="home-screen">← Back</button>
+        <h2>Leaderboard</h2>
+      </div>
+
+      <div class="leaderboard-tabs">
+        <button class="tab-btn active" data-view="today">Today</button>
+        <button class="tab-btn" data-view="alltime">All Time</button>
+        <button class="tab-btn" data-view="mine">My Scores</button>
+      </div>
+
+      <div class="leaderboard-filters">
+        <select id="shape-filter">
+          <option value="all">All Shapes</option>
+        </select>
+        <select id="mode-filter">
+          <option value="all">All Modes</option>
+          <option value="standard">Standard</option>
+          <option value="speed">Speed</option>
+          <option value="memory">Memory</option>
+        </select>
+      </div>
+
+      <div id="leaderboard-list" class="leaderboard-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
