@@ -622,9 +622,6 @@ function showResults(scoreResult, rank) {
   if (state.selectedMode === 'speed') {
     details += ` | Time: ${state.elapsedTime.toFixed(1)}s`;
   }
-  if (scoreResult.completionBonus) {
-    details += ` | +${scoreResult.completionBonus}% completion bonus`;
-  }
   detailsEl.textContent = details;
 
   // Show rank

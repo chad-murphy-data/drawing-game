@@ -156,21 +156,15 @@ export function calculateScore(drawnPoints, idealPath, options = {}) {
   }
 
   // Base accuracy: green = 100%, yellow = 25%, red = 0%
-  // This is the PRIMARY scoring factor
   const accuracyPoints = greenCount * 1 + yellowCount * 0.25;
   const accuracy = (accuracyPoints / drawnPoints.length) * 100;
 
-  // Calculate coverage (for display only, minimal impact on score)
+  // Calculate coverage (how much of the shape was traced)
   const coverage = calculatePathCoverage(drawnPoints, idealPath);
 
-  // Small completion bonus (+2% if >90% coverage)
-  const completionBonus = coverage > 0.9 ? 2 : 0;
-
-  // Speed bonus (Speed Mode only, 0-5%)
-  const speedBonus = mode === 'speed' ? Math.floor(calculateSpeedBonus(timeSeconds) * 0.5) : 0;
-
-  // Final score is primarily accuracy-based
-  let score = accuracy + completionBonus + speedBonus;
+  // Final score = coverage * accuracy
+  // You need both good coverage AND good accuracy for a high score
+  let score = (coverage * accuracy);
 
   // Cap at 100
   score = Math.min(100, Math.round(score));
@@ -203,9 +197,6 @@ export function calculateScore(drawnPoints, idealPath, options = {}) {
     yellowCount,
     redCount,
     coverage: Math.round(coverage * 100),
-    completionBonus,
-    smoothnessBonus,
-    speedBonus,
     tier,
     message,
     pointDetails
