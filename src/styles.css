@@ -409,17 +409,25 @@ body {
 /* Canvas Container */
 .canvas-container {
   position: relative;
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 -20px;
   background: var(--bg-card);
   border-radius: 20px;
   margin: 0 auto;
   width: 100%;
   max-width: 600px;
   aspect-ratio: 1;
+  /* Fallback for browsers without aspect-ratio support */
+  min-height: 300px;
+  height: auto;
+}
+
+/* For browsers that support aspect-ratio, override min-height */
+@supports (aspect-ratio: 1) {
+  .canvas-container {
+    min-height: unset;
+  }
 }
 
 #game-canvas {

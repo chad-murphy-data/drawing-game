@@ -242,7 +242,22 @@ function resizeCanvas() {
   const container = document.querySelector('.canvas-container');
   if (!container) return;
 
-  const size = Math.min(container.clientWidth, container.clientHeight, 600);
+  // Get actual dimensions - use offsetWidth/Height as fallback
+  let width = container.clientWidth || container.offsetWidth;
+  let height = container.clientHeight || container.offsetHeight;
+
+  // If still 0, try computing from parent or use default
+  if (width === 0 || height === 0) {
+    const rect = container.getBoundingClientRect();
+    width = rect.width || 400;
+    height = rect.height || 400;
+  }
+
+  const size = Math.min(width, height, 600);
+
+  // Don't resize if size is too small (screen probably hidden)
+  if (size < 100) return;
+
   state.canvasSize = size;
 
   // Set canvas dimensions
@@ -271,6 +286,12 @@ function navigateTo(screenId) {
   });
   elements.screens[screenId].classList.add('active');
   state.currentScreen = screenId;
+
+  // Resize canvas when game screen becomes visible
+  if (screenId === 'game-screen') {
+    // Use setTimeout to ensure the screen is rendered before measuring
+    setTimeout(() => resizeCanvas(), 10);
+  }
 }
 
 // Populate shape selection grid
@@ -346,8 +367,12 @@ function startGame() {
   document.getElementById('current-mode-badge').textContent =
     state.selectedMode.charAt(0).toUpperCase() + state.selectedMode.slice(1);
 
-  // Generate ideal path
-  state.idealPath = shape.generate(state.canvasSize);
+  // Ensure canvas is properly sized before generating path
+  resizeCanvas();
+
+  // Generate ideal path (use default size if canvas still not ready)
+  const pathSize = state.canvasSize || 400;
+  state.idealPath = shape.generate(pathSize);
 
   // Show/hide timer
   const timerEl = document.getElementById('game-timer');
@@ -495,7 +520,7 @@ function drawGhostShape(ctx = elements.ctx, canvas = elements.canvas, path = sta
 
 // Draw user's path
 function drawUserPath() {
-  if (state.drawnPoints.length < 2) return;
+  if (state.drawnPoints.length === 0) return;
 
   // Redraw ghost shape first
   if (state.selectedMode !== 'memory' || state.memoryPhase) {
@@ -504,19 +529,30 @@ function drawUserPath() {
     clearCanvas();
   }
 
-  // Draw user path
-  elements.ctx.beginPath();
-  elements.ctx.moveTo(state.drawnPoints[0].x, state.drawnPoints[0].y);
+  const ctx = elements.ctx;
 
-  for (let i = 1; i < state.drawnPoints.length; i++) {
-    elements.ctx.lineTo(state.drawnPoints[i].x, state.drawnPoints[i].y);
+  // If only one point, draw a dot
+  if (state.drawnPoints.length === 1) {
+    ctx.beginPath();
+    ctx.arc(state.drawnPoints[0].x, state.drawnPoints[0].y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff2e63';
+    ctx.fill();
+    return;
   }
 
-  elements.ctx.strokeStyle = '#ff2e63';
-  elements.ctx.lineWidth = 4;
-  elements.ctx.lineCap = 'round';
-  elements.ctx.lineJoin = 'round';
-  elements.ctx.stroke();
+  // Draw user path
+  ctx.beginPath();
+  ctx.moveTo(state.drawnPoints[0].x, state.drawnPoints[0].y);
+
+  for (let i = 1; i < state.drawnPoints.length; i++) {
+    ctx.lineTo(state.drawnPoints[i].x, state.drawnPoints[i].y);
+  }
+
+  ctx.strokeStyle = '#ff2e63';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.stroke();
 }
 
 // Start the timer
