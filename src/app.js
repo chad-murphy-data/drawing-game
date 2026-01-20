@@ -667,8 +667,8 @@ function showResults(scoreResult, rank) {
     rankEl.classList.add('hidden');
   }
 
-  // Draw comparison
-  drawResultsComparison(scoreResult);
+  // Draw comparison (delay to ensure canvas is rendered)
+  setTimeout(() => drawResultsComparison(scoreResult), 50);
 
   // Show confetti for high scores
   if (scoreResult.score >= 90) {
@@ -703,29 +703,39 @@ function animateScore(targetScore) {
 
 // Draw comparison on results canvas
 function drawResultsComparison(scoreResult) {
-  const ctx = elements.resultsCtx;
   const canvas = elements.resultsCanvas;
-  const scale = canvas.width / state.canvasSize;
+  const ctx = elements.resultsCtx;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Set canvas size explicitly
+  const container = document.querySelector('.results-canvas-container');
+  const size = Math.min(container.clientWidth || 300, 300);
+  canvas.width = size;
+  canvas.height = size;
+
+  // Calculate scale from game canvas to results canvas
+  const scale = size / (state.canvasSize || 400);
+
+  ctx.clearRect(0, 0, size, size);
 
   // Scale the paths
   const scaledIdeal = state.idealPath.map(p => ({ x: p.x * scale, y: p.y * scale }));
   const scaledDrawn = state.drawnPoints.map(p => ({ x: p.x * scale, y: p.y * scale }));
 
-  // Draw ideal path
+  // Draw ideal path (cyan, dashed)
   if (scaledIdeal.length > 1) {
     ctx.beginPath();
+    ctx.setLineDash([4, 4]);
     ctx.moveTo(scaledIdeal[0].x, scaledIdeal[0].y);
     for (let i = 1; i < scaledIdeal.length; i++) {
       ctx.lineTo(scaledIdeal[i].x, scaledIdeal[i].y);
     }
-    ctx.strokeStyle = 'rgba(8, 217, 214, 0.5)';
+    ctx.strokeStyle = '#08d9d6';
     ctx.lineWidth = 2;
     ctx.stroke();
+    ctx.setLineDash([]);
   }
 
-  // Draw user path
+  // Draw user path (pink, solid)
   if (scaledDrawn.length > 1) {
     ctx.beginPath();
     ctx.moveTo(scaledDrawn[0].x, scaledDrawn[0].y);
@@ -733,8 +743,18 @@ function drawResultsComparison(scoreResult) {
       ctx.lineTo(scaledDrawn[i].x, scaledDrawn[i].y);
     }
     ctx.strokeStyle = '#ff2e63';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.stroke();
+  }
+
+  // Draw start point
+  if (scaledIdeal.length > 0) {
+    ctx.beginPath();
+    ctx.arc(scaledIdeal[0].x, scaledIdeal[0].y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#6ef970';
+    ctx.fill();
   }
 }
 
